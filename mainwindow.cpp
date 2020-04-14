@@ -56,7 +56,10 @@ void MainWindow::on_pushButton_clicked()
             return;
         }
 
-        std::cout << "Loaded " << cloud->points.size() << " points."<<std::endl;
+        std::ostringstream oss;
+        oss << "Loaded " << cloud->points.size() << " points.";
+        qInfo(oss.str().c_str());
+        oss.str("");
 
         viewer->removeAllPointClouds();
         viewer->removeAllCoordinateSystems();
@@ -75,7 +78,11 @@ void MainWindow::on_pushButton_2_released()
 void MainWindow::settingParam(QString p1, QString p2, QString p3, QString p4){
     float arch_steel_gap = p1.toFloat(), arch_steel_thickness = p2.toFloat(),
                 scan_size = p3.toFloat(), sensor_resolution = p4.toFloat();
-    std::cout<<"setting param, arch steel gap: "<<arch_steel_gap<<"; arch steel thickness: "<<arch_steel_thickness<<"; scan size :"<<scan_size<<"; sensor resolution: "<<sensor_resolution<<std::endl;
+    std::ostringstream oss;
+    oss<<"setting param, arch steel gap: "<<arch_steel_gap<<"; arch steel thickness: "<<arch_steel_thickness<<"; scan size :"<<scan_size<<"; sensor resolution: "<<sensor_resolution;
+    qInfo(oss.str().c_str());
+    oss.str("");
+
     _PARAM_.reset(new designSpace::TunnelParameter(arch_steel_gap, arch_steel_thickness, scan_size, sensor_resolution));
     //设置新参数后，点云处理也应从头开始
     clustered_indices.reset(new pcl::PointIndices);
@@ -107,12 +114,18 @@ void MainWindow::on_pushButton_3_clicked()
     voxelGrid.setLeafSize(_PARAM_->VOXEL_SIZE_, _PARAM_->VOXEL_SIZE_, _PARAM_->VOXEL_SIZE_);
     voxelGrid.filter(*voxelFilterCloud);
 
-    std::cout<<"before voxelization size is: "<<(*cloud).points.size()<<std::endl;
-    std::cout << "Voxel size is: " << _PARAM_->VOXEL_SIZE_ << std::endl;
-    std::cout<<"After voxellization size is: "<<(*voxelFilterCloud).points.size()<<std::endl;
+
+    std::ostringstream oss;
+    oss<<"before voxelization size is: "<<(*cloud).points.size()<<std::endl;
+    oss<< "Voxel size is: " << _PARAM_->VOXEL_SIZE_ << std::endl;
+    oss<<"After voxellization size is: "<<(*voxelFilterCloud).points.size()<<std::endl;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
     //聚类参数
-    std::cout << "start cluster..." << std::endl;
+    oss << "start cluster..." ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     designSpace::DBSCAN<PointT> dbscan;
     std::vector<pcl::PointIndices> all_cluster_indices;
     pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
@@ -144,7 +157,14 @@ void MainWindow::on_pushButton_3_clicked()
         }
         non_calibrated_cloud = clustered_color_cloud;
         colored_cloud = clustered_color_cloud;
-        std::cout<<"max cluster size: "<<clustered_color_cloud->points.size()<<std::endl;
+
+        oss<<"max cluster size: "<<clustered_color_cloud->points.size();
+        qInfo(oss.str().c_str());
+        oss.str("");
+    }else{
+        oss<<"点云为空";
+        qWarning(oss.str().c_str());
+        oss.str("");
     }
 
     viewer->removeAllPointClouds();
@@ -155,6 +175,7 @@ void MainWindow::on_pushButton_3_clicked()
 void MainWindow::on_pushButton_4_clicked()
 {
     //坐标轴标定
+    std::ostringstream oss;
     //找质心
     float x = 0, y = 0, z = 0;
     for(const int& inx : clustered_indices->indices){
@@ -165,7 +186,9 @@ void MainWindow::on_pushButton_4_clicked()
     x/=non_calibrated_cloud->points.size();
     y/=non_calibrated_cloud->points.size();
     z/=non_calibrated_cloud->points.size();
-    std::cout<<"X: "<<x<<" Y: "<<y<<" Z: "<<z<<std::endl;
+    oss<<"X: "<<x<<" Y: "<<y<<" Z: "<<z ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     //参数设置
     designSpace::Calibration<PointCT> calibration;
     calibration.setInputCloud(non_calibrated_cloud);
@@ -179,12 +202,16 @@ void MainWindow::on_pushButton_4_clicked()
 
     time_t start, end;
     start = time(nullptr);
-    std::cout << "start to calibrate: "<<std::endl;
+    oss << "start to calibrate: " ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     calibration.setProjectionPlane("yoz");
     calibration.setRotatingAxis('z');
     calibration.calibrate(colored_cloud);
     end = time(nullptr);
-    std::cout << "finish to calibrate. time: "<<(end-start)<<" second"<<std::endl;
+    oss << "finish to calibrate. time: "<<(end-start)<<" second" ;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
     //用于恢复的参数
     angle_x = calibration.getAngleX();
@@ -203,6 +230,7 @@ void MainWindow::on_pushButton_4_clicked()
 void MainWindow::on_pushButton_5_clicked()
 {
     //移除地面
+    std::ostringstream oss;
     designSpace::GroundRemoval<pcl::PointXYZRGB> groundRemoval;
     pcl::PointIndices::Ptr remain_indices_ptr(new pcl::PointIndices);
     groundRemoval.setAxis('z');
@@ -212,13 +240,19 @@ void MainWindow::on_pushButton_5_clicked()
 
     time_t start, end;
     start = time(nullptr);
-    std::cout << "start to remove ground: "<<std::endl;
+    oss << "start to remove ground: " ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     groundRemoval.remove(*remain_indices_ptr);
     end = time(nullptr);
-    std::cout << "finish to remove ground. time: "<<(end-start)<<" second"<<std::endl;
+    oss << "finish to remove ground. time: "<<(end-start)<<" second" ;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
     remain_indices = remain_indices_ptr;
-    std::cout<<"remain size: "<<remain_indices_ptr->indices.size()<<std::endl;
+    oss<<"remain size: "<<remain_indices_ptr->indices.size() ;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
     colored_cloud.reset(new PointCloudCT);
     pcl::copyPointCloud(*processed_cloud, remain_indices->indices, *colored_cloud);
@@ -231,6 +265,7 @@ void MainWindow::on_pushButton_5_clicked()
 void MainWindow::on_pushButton_6_clicked()
 {
     //岩石表面提取， 参数设置
+    std::ostringstream oss;
     designSpace::RockfaceExtraction<pcl::PointXYZRGB> rockfaceExtraction;
     pcl::search::KdTree<PointCT>::Ptr tree(new pcl::search::KdTree<PointCT>);
     rockfaceExtraction.setInputCloud(processed_cloud);
@@ -245,12 +280,16 @@ void MainWindow::on_pushButton_6_clicked()
 
     time_t start, end;
     start = time(nullptr);
-    std::cout << "start to extract rockface: "<<std::endl;
+    oss << "start to extract rockface: " ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     int seg_m1, seg_m2;
     rockfaceExtraction.extract(*rockface_indices_ptr, seg_m1, seg_m2);
     end = time(nullptr);
 
-    std::cout << "finish to extract rockface. time: "<<(end-start)<<" second"<<std::endl;
+    oss << "finish to extract rockface. time: "<<(end-start)<<" second" ;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
     //对提取出的岩石表面再次聚类(DBSCAN)
     designSpace::DBSCAN<PointCT> dbscan;
@@ -266,7 +305,13 @@ void MainWindow::on_pushButton_6_clicked()
         rockface_indices_ptr = boost::make_shared<pcl::PointIndices>(indices[max_inx]);
 
         rockface_indices = rockface_indices_ptr;
-        std::cout<<"extracted size: "<<rockface_indices_ptr->indices.size()<<std::endl;
+        oss<<"extracted size: "<<rockface_indices_ptr->indices.size() ;
+        qInfo(oss.str().c_str());
+        oss.str("");
+    }else{
+        oss<<"点云为空" ;
+        qWarning(oss.str().c_str());
+        oss.str("");
     }
 
     colored_cloud.reset(new PointCloudCT);
@@ -281,8 +326,9 @@ void MainWindow::on_pushButton_6_clicked()
 void MainWindow::on_pushButton_7_clicked()
 {
     //钢拱识别，参数设置
+    std::ostringstream oss;
     designSpace::SteelArchExtraction<PointCT> steelArchExtraction;
-    std::cout << "setting parameter..."<<std::endl;
+    oss << "setting parameter..."<<std::endl;
     float x = 0, y = 0, z = 0, min_x = FLT_MAX, max_x = FLT_MIN, min_y = FLT_MAX, max_y = FLT_MIN, min_z = FLT_MAX, max_z = FLT_MIN;
     for (const int& inx:rockface_indices->indices) {
         min_x = fmin(min_x, processed_cloud->points[inx].x);
@@ -302,11 +348,13 @@ void MainWindow::on_pushButton_7_clicked()
     y /= rockface_indices->indices.size();
     z /= rockface_indices->indices.size();
 
-    std::cout << "center point is: x:" << x << " y:" << y << " z:" << z << std::endl;
+    oss << "center point is: x:" << x << " y:" << y << " z:" << z << std::endl;
 
-    std::cout << "x axis range is: " <<max_x - min_x<< std::endl;
-    std::cout << "y axis range is: " <<max_y - min_y<< std::endl;
-    std::cout << "z axis range is: " <<max_z - min_z<< std::endl;
+    oss << "x axis range is: " <<max_x - min_x<< std::endl;
+    oss << "y axis range is: " <<max_y - min_y<< std::endl;
+    oss << "z axis range is: " <<max_z - min_z<< std::endl;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
     pcl::search::KdTree<PointCT>::Ptr tree(new pcl::search::KdTree<PointCT>);
     steelArchExtraction.setInputCloud(processed_cloud);
@@ -322,12 +370,18 @@ void MainWindow::on_pushButton_7_clicked()
     std::vector<PointCT, Eigen::aligned_allocator<PointCT>> steel_arch_points;
     time_t start, end;
     start = time(nullptr);
-    std::cout << "start to extract steel arch: "<<std::endl;
+    oss << "start to extract steel arch: " ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     steelArchExtraction.extract(steel_arch_points);
     end = time(nullptr);
-    std::cout << "finish to extract steel arch. time: "<<(end-start)<<" second"<<std::endl;
+    oss << "finish to extract steel arch. time: "<<(end-start)<<" second" ;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
-    std::cout << "steel arch point number: "<<steel_arch_points.size()<<std::endl;
+    oss << "steel arch point number: "<<steel_arch_points.size() ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     PointCloudCT::Ptr tmp_steel_arch_cloud(new PointCloudCT);
     //提取出最大聚类点云并着色
     int R = 0xea;
@@ -349,7 +403,10 @@ void MainWindow::on_pushButton_7_clicked()
 void MainWindow::on_pushButton_9_clicked()
 {
     //在未标定的点云中展示钢拱
-    std::cout<<"restore axes orientation..."<<std::endl;
+    std::ostringstream oss;
+    oss<<"restore axes orientation..." ;
+    qInfo(oss.str().c_str());
+    oss.str("");
     designSpace::Calibration<PointCT> calibration;
     calibration.setInputCloud(steel_arch_cloud);
     //伪indices
@@ -360,8 +417,10 @@ void MainWindow::on_pushButton_9_clicked()
     PointCloudCT::Ptr tmp_steel_cloud(new PointCloudCT);
     calibration.restore(tmp_steel_cloud);
     steel_arch_cloud = tmp_steel_cloud;
-    std::cout<<"restore done."<<std::endl;
-    std::cout<<"restore angle. rotating on x axis: "<<-angle_x<<", on y axis: "<<-angle_y<<", on z axis: "<<-angle_z<<std::endl;
+    oss<<"restore done."<<std::endl;
+    oss<<"restore angle. rotating on x axis: "<<-angle_x<<", on y axis: "<<-angle_y<<", on z axis: "<<-angle_z<<std::endl;
+    qInfo(oss.str().c_str());
+    oss.str("");
 
     viewer->removeAllPointClouds();
     viewer->addPointCloud(non_calibrated_cloud, "colored cloud");
@@ -373,28 +432,38 @@ void MainWindow::on_pushButton_9_clicked()
 void MainWindow::on_pushButton_10_clicked()
 {
     // reset the cloud pointer
-     //cloud.reset (new PointCloudT);
-     clustered_indices.reset(new pcl::PointIndices);
-     remain_indices.reset(new pcl::PointIndices);
-     rockface_indices.reset(new pcl::PointIndices);
-     steel_arch_cloud.reset(new PointCloudCT);
-     colored_cloud.reset(new PointCloudCT);
-     processed_cloud.reset(new PointCloudCT);
-     non_calibrated_cloud.reset(new PointCloudCT);
+    std::ostringstream oss;
+    oss<<"reset program";
+    qInfo(oss.str().c_str());
+    oss.str("");
+    //cloud.reset (new PointCloudT);
+    clustered_indices.reset(new pcl::PointIndices);
+    remain_indices.reset(new pcl::PointIndices);
+    rockface_indices.reset(new pcl::PointIndices);
+    steel_arch_cloud.reset(new PointCloudCT);
+    colored_cloud.reset(new PointCloudCT);
+    processed_cloud.reset(new PointCloudCT);
+    non_calibrated_cloud.reset(new PointCloudCT);
 
-     viewer->removeAllPointClouds();
-     viewer->removeAllCoordinateSystems();
-     viewer->resetCamera ();
-     viewer->addPointCloud (cloud, "cloud");
-     ui->qvtkWidget->update ();
+    viewer->removeAllPointClouds();
+    viewer->removeAllCoordinateSystems();
+    viewer->resetCamera ();
+    viewer->addPointCloud (cloud, "cloud");
+    ui->qvtkWidget->update ();
 }
 
 void MainWindow::on_pushButton_8_clicked()
 {
     //流水线处理
-
+    std::ostringstream oss;
+    oss<<"start pipeline...";
+    qInfo(oss.str().c_str());
+    oss.str("");
     on_pushButton_4_clicked();  //坐标轴标定
     on_pushButton_5_clicked();  //移除地面
     on_pushButton_6_clicked();  //提取岩石表面
     on_pushButton_7_clicked();  //钢拱识别
+    oss<<"end pipeline...";
+    qInfo(oss.str().c_str());
+    oss.str("");
 }
