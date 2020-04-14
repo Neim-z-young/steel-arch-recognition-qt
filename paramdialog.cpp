@@ -33,3 +33,7 @@ void ParamDialog::on_buttonBox_rejected()
 {
     emit cancelSignal();
 }
+
+void ParamDialog::closeEvent(QCloseEvent *event){
+    emit cancelSignal();
+}

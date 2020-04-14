@@ -2,6 +2,7 @@
 #define PARAMDIALOG_H
 
 #include <QDialog>
+#include <QCloseEvent>
 
 namespace Ui {
 class ParamDialog;
@@ -18,6 +19,9 @@ public:
 signals:
     void cancelSignal();
     void settingSignal(QString p1, QString p2, QString p3, QString p4);
+
+protected:
+    void closeEvent(QCloseEvent *event);    // 重写closeEvent
 
 private slots:
     void on_buttonBox_accepted();
