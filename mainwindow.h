@@ -21,6 +21,7 @@
 
 // Visualization Toolkit (VTK)
 #include <vtkRenderWindow.h>
+#include <vtkGenericOpenGLRenderWindow.h>
 
 //user lib
 #include"../../../clion/pclDemo/learning/designLib/tunnelTool.h"

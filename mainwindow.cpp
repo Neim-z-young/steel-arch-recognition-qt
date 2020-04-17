@@ -19,10 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
      processed_cloud.reset(new PointCloudCT);
      non_calibrated_cloud.reset(new PointCloudCT);
 
-
      // Set up the QVTK window
      viewer.reset (new pcl::visualization::PCLVisualizer ("viewer", false));
-     ui->qvtkWidget->SetRenderWindow (viewer->getRenderWindow ());
+     ui->qvtkWidget->SetRenderWindow (viewer->getRenderWindow());
      viewer->setupInteractor (ui->qvtkWidget->GetInteractor (), ui->qvtkWidget->GetRenderWindow ());
      ui->qvtkWidget->update ();
      //       viewer->addPointCloud (cloud, "cloud");
@@ -222,7 +221,7 @@ void MainWindow::on_pushButton_4_clicked()
 
     viewer->removeCoordinateSystem("ref axes");
     viewer->addCoordinateSystem(10000, x, y, z, "ref axes");
-    viewer->removePointCloud("colored cloud");
+    viewer->removeAllPointClouds();
     viewer->addPointCloud (colored_cloud, "colored cloud");
     ui->qvtkWidget->update ();
 }
@@ -257,7 +256,7 @@ void MainWindow::on_pushButton_5_clicked()
     colored_cloud.reset(new PointCloudCT);
     pcl::copyPointCloud(*processed_cloud, remain_indices->indices, *colored_cloud);
 
-    viewer->removePointCloud("colored cloud");
+    viewer->removeAllPointClouds();
     viewer->addPointCloud (colored_cloud, "colored cloud");
     ui->qvtkWidget->update ();
 }
@@ -291,6 +290,11 @@ void MainWindow::on_pushButton_6_clicked()
     qInfo(oss.str().c_str());
     oss.str("");
 
+    _PARAM_->start_arch_shift_ = rockfaceExtraction.calculateStartShift();
+    oss << "calculated start shift: "<<_PARAM_->start_arch_shift_/_PARAM_->MULTIPLE_<<"m." ;
+    qInfo(oss.str().c_str());
+    oss.str("");
+
     //对提取出的岩石表面再次聚类(DBSCAN)
     designSpace::DBSCAN<PointCT> dbscan;
     std::vector<pcl::PointIndices> indices;
@@ -318,7 +322,7 @@ void MainWindow::on_pushButton_6_clicked()
     pcl::copyPointCloud(*processed_cloud, rockface_indices->indices, *colored_cloud);
 
     //调用viewer->updatePointCloud()会发生很奇怪的错误，应该是vtk的bug
-    viewer->removePointCloud("colored cloud");
+    viewer->removeAllPointClouds();
     viewer->addPointCloud (colored_cloud, "colored cloud");
     ui->qvtkWidget->update ();
 }
@@ -364,7 +368,7 @@ void MainWindow::on_pushButton_7_clicked()
     steelArchExtraction.setTree(tree);
     steelArchExtraction.setArchThickness(_PARAM_->ARCH_STEEL_THICKNESS_);
     steelArchExtraction.setSteelArchGap(_PARAM_->ARCH_STEEL_GAP_);
-    steelArchExtraction.setStartArchGap(0.);
+    steelArchExtraction.setStartArchGap(0.f);
     steelArchExtraction.setViewPoint(x, y, z);
 
     std::vector<PointCT, Eigen::aligned_allocator<PointCT>> steel_arch_points;
@@ -395,6 +399,8 @@ void MainWindow::on_pushButton_7_clicked()
         tmp_steel_arch_cloud->push_back(point);
     }
     steel_arch_cloud = tmp_steel_arch_cloud;
+    viewer->removeAllPointClouds();
+    viewer->addPointCloud (colored_cloud, "colored cloud");
     viewer->addPointCloud (steel_arch_cloud, "steel arch cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "steel arch cloud");
     ui->qvtkWidget->update ();

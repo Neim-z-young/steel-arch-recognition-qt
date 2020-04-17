@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QTextStream>
 
+
 void outputMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     static QMutex mutex;
@@ -16,6 +17,10 @@ void outputMessage(QtMsgType type, const QMessageLogContext &context, const QStr
     {
     case QtDebugMsg:
         text = QString("Debug:");
+        break;
+
+    case QtInfoMsg:
+        text = QString("Info:");
         break;
 
     case QtWarningMsg:

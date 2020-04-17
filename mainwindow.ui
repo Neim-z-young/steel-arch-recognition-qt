@@ -112,7 +112,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QVTKOpenGLWidget" name="qvtkWidget" native="true">
+         <widget class="QVTKWidget" name="qvtkWidget">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -201,6 +201,7 @@
     </item>
    </layout>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -212,19 +213,17 @@
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>打开文件</string>
+     <string/>
     </property>
    </widget>
    <addaction name="menu"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKOpenGLWidget</class>
+   <class>QVTKWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKOpenGLWidget.h</header>
-   <container>1</container>
+   <header>QVTKWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
