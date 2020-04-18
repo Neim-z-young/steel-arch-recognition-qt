@@ -290,10 +290,10 @@ void MainWindow::on_pushButton_6_clicked()
     qInfo(oss.str().c_str());
     oss.str("");
 
-    _PARAM_->start_arch_shift_ = rockfaceExtraction.calculateStartShift();
-    oss << "calculated start shift: "<<_PARAM_->start_arch_shift_/_PARAM_->MULTIPLE_<<"m." ;
-    qInfo(oss.str().c_str());
-    oss.str("");
+//    _PARAM_->start_arch_shift_ = rockfaceExtraction.calculateStartShift();
+//    oss << "calculated start shift: "<<_PARAM_->start_arch_shift_/_PARAM_->MULTIPLE_<<"m." ;
+//    qInfo(oss.str().c_str());
+//    oss.str("");
 
     //对提取出的岩石表面再次聚类(DBSCAN)
     designSpace::DBSCAN<PointCT> dbscan;
@@ -367,7 +367,7 @@ void MainWindow::on_pushButton_7_clicked()
     steelArchExtraction.setRadius(_PARAM_->RADIUS_FOR_C_N_);
     steelArchExtraction.setTree(tree);
     steelArchExtraction.setArchThickness(_PARAM_->ARCH_STEEL_THICKNESS_);
-    steelArchExtraction.setSteelArchGap(_PARAM_->ARCH_STEEL_GAP_);
+    steelArchExtraction.setSteelArchGap(_PARAM_->ARCH_STEEL_GAP_*0.2);
     steelArchExtraction.setStartArchGap(0.f);
     steelArchExtraction.setViewPoint(x, y, z);
 
