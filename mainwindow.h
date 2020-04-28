@@ -37,6 +37,7 @@ typedef pcl::PointXYZ PointT;
 typedef pcl::PointXYZRGB PointCT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 typedef pcl::PointCloud<PointCT> PointCloudCT;
+typedef pcl::visualization::PointCloudColorHandlerCustom<PointT> ColorHandler;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -60,6 +61,7 @@ protected:
     PointCloudT::Ptr cloud;
     PointCloudCT::Ptr colored_cloud;
     PointCloudCT::Ptr steel_arch_cloud;
+    ColorHandler::Ptr color_handler;
     //processed
     PointCloudCT::Ptr non_calibrated_cloud;
     PointCloudCT::Ptr processed_cloud;
@@ -86,5 +88,6 @@ private slots:
     void on_pushButton_9_clicked();  //标定前点云展示钢拱
     void on_pushButton_10_clicked(); //重置
     void on_pushButton_8_clicked();  //流水线
+    void on_pushButton_11_clicked();
 };
 #endif // MAINWINDOW_H

@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("PCL viewer");
+    this->setWindowTitle("钢拱识别系统");
 
     // Setup the cloud pointer
      cloud.reset (new PointCloudT);
@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
      viewer.reset (new pcl::visualization::PCLVisualizer ("viewer", false));
      ui->qvtkWidget->SetRenderWindow (viewer->getRenderWindow());
      viewer->setupInteractor (ui->qvtkWidget->GetInteractor (), ui->qvtkWidget->GetRenderWindow ());
+     viewer->setBackgroundColor(255, 255, 255);
      ui->qvtkWidget->update ();
      //       viewer->addPointCloud (cloud, "cloud");
      //       viewer->addPointCloud (colored_cloud, "colored cloud");
@@ -56,13 +57,14 @@ void MainWindow::on_pushButton_clicked()
         }
 
         std::ostringstream oss;
-        oss << "Loaded " << cloud->points.size() << " points.";
+        oss << "Open file: "<< filename.toStdString()<<" ; Loaded " << cloud->points.size() << " points.";
         qInfo(oss.str().c_str());
         oss.str("");
 
         viewer->removeAllPointClouds();
         viewer->removeAllCoordinateSystems();
-        viewer->addPointCloud (cloud, "cloud");
+        color_handler.reset(new ColorHandler(cloud, 0x44, 0x72, 0xc4));
+        viewer->addPointCloud (cloud, *color_handler, "cloud");
         ui->qvtkWidget->update ();
 
     }
@@ -91,7 +93,8 @@ void MainWindow::settingParam(QString p1, QString p2, QString p3, QString p4){
     colored_cloud.reset(new PointCloudCT);
     viewer->removeAllPointClouds();
     viewer->removeAllCoordinateSystems();
-    viewer->addPointCloud (cloud, "cloud");
+    color_handler.reset(new ColorHandler(cloud, 0x44, 0x72, 0xc4));
+    viewer->addPointCloud (cloud, *color_handler, "cloud");
     ui->qvtkWidget->update ();
 
     this->show();
@@ -142,9 +145,9 @@ void MainWindow::on_pushButton_3_clicked()
         size_t size = all_cluster_indices[inx].indices.size();
         clustered_indices->indices.resize(size);
         clustered_color_cloud->resize(size);
-        int R = random() % 256;
-        int G = random() % 256;
-        int B = random() % 256;
+        int R = 0x44;
+        int G = 0x72;
+        int B = 0xc4;
         for(size_t i=0; i<size; i++){
             clustered_color_cloud->points[i].x = (*voxelFilterCloud).points[all_cluster_indices[inx].indices[i]].x;
             clustered_color_cloud->points[i].y = (*voxelFilterCloud).points[all_cluster_indices[inx].indices[i]].y;
@@ -165,6 +168,19 @@ void MainWindow::on_pushButton_3_clicked()
         qWarning(oss.str().c_str());
         oss.str("");
     }
+
+    //找质心
+    float x = 0, y = 0, z = 0;
+    for(const int& inx : clustered_indices->indices){
+        x+=non_calibrated_cloud->points[inx].x;
+        y+=non_calibrated_cloud->points[inx].y;
+        z+=non_calibrated_cloud->points[inx].z;
+    }
+    x/=non_calibrated_cloud->points.size();
+    y/=non_calibrated_cloud->points.size();
+    z/=non_calibrated_cloud->points.size();
+    viewer->removeCoordinateSystem("ref axes");
+    viewer->addCoordinateSystem(10000, x, y, z, "ref axes");
 
     viewer->removeAllPointClouds();
     viewer->addPointCloud (colored_cloud, "colored cloud");
@@ -256,6 +272,7 @@ void MainWindow::on_pushButton_5_clicked()
     colored_cloud.reset(new PointCloudCT);
     pcl::copyPointCloud(*processed_cloud, remain_indices->indices, *colored_cloud);
 
+    viewer->removeCoordinateSystem("ref axes");
     viewer->removeAllPointClouds();
     viewer->addPointCloud (colored_cloud, "colored cloud");
     ui->qvtkWidget->update ();
@@ -387,7 +404,7 @@ void MainWindow::on_pushButton_7_clicked()
     qInfo(oss.str().c_str());
     oss.str("");
     PointCloudCT::Ptr tmp_steel_arch_cloud(new PointCloudCT);
-    //提取出最大聚类点云并着色
+    //钢拱点着色
     int R = 0xea;
     int G = 0x62;
     int B = 0x46;
@@ -454,7 +471,8 @@ void MainWindow::on_pushButton_10_clicked()
     viewer->removeAllPointClouds();
     viewer->removeAllCoordinateSystems();
     viewer->resetCamera ();
-    viewer->addPointCloud (cloud, "cloud");
+    color_handler.reset(new ColorHandler(cloud, 0x44, 0x72, 0xc4));
+    viewer->addPointCloud (cloud, *color_handler, "cloud");
     ui->qvtkWidget->update ();
 }
 
@@ -472,4 +490,14 @@ void MainWindow::on_pushButton_8_clicked()
     oss<<"end pipeline...";
     qInfo(oss.str().c_str());
     oss.str("");
+}
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    //保存钢拱数据点
+    QString fileName = QFileDialog::getSaveFileName(this, tr("数据"), "", tr("point cloud data(*.pcd)"));
+    std::ostringstream oss;
+    oss<<"save steel arch point to "<<fileName.toStdString()<<" ; point size is: "<<steel_arch_cloud->size();
+    qInfo(oss.str().c_str());
+    pcl::io::savePCDFile(fileName.toStdString(), *steel_arch_cloud);
 }

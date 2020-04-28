@@ -149,6 +149,13 @@
            </spacer>
           </item>
           <item>
+           <widget class="QPushButton" name="pushButton_11">
+            <property name="text">
+             <string>保存钢拱点</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="pushButton_10">
             <property name="text">
              <string>重置</string>
