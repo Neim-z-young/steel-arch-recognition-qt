@@ -22,6 +22,7 @@
 // Visualization Toolkit (VTK)
 #include <vtkRenderWindow.h>
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkCamera.h>
 
 //user lib
 #include"../../../clion/pclDemo/learning/designLib/tunnelTool.h"
@@ -89,5 +90,8 @@ private slots:
     void on_pushButton_10_clicked(); //重置
     void on_pushButton_8_clicked();  //流水线
     void on_pushButton_11_clicked();
+    void on_pushButton_12_clicked();
+    void on_pushButton_13_clicked();
+    void on_pushButton_14_clicked();
 };
 #endif // MAINWINDOW_H

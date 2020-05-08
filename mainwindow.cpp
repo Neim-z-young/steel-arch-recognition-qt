@@ -28,6 +28,10 @@ MainWindow::MainWindow(QWidget *parent)
      //       viewer->addPointCloud (cloud, "cloud");
      //       viewer->addPointCloud (colored_cloud, "colored cloud");
      viewer->resetCamera ();
+     //设置平行投影
+     viewer->getRenderWindow()->GetRenderers()->GetFirstRenderer()->GetActiveCamera()->SetParallelProjection(true);
+     //默认侧视图
+     on_pushButton_14_clicked();
      ui->qvtkWidget->update ();
 
      //参数设置窗口
@@ -500,4 +504,31 @@ void MainWindow::on_pushButton_11_clicked()
     oss<<"save steel arch point to "<<fileName.toStdString()<<" ; point size is: "<<steel_arch_cloud->size();
     qInfo(oss.str().c_str());
     pcl::io::savePCDFile(fileName.toStdString(), *steel_arch_cloud);
+}
+
+void MainWindow::on_pushButton_12_clicked()
+{
+    //调整正视图
+    viewer->setCameraPosition(40000, 0, 0,
+                              0, 0, 0,
+                              0, 0, 1);
+    ui->qvtkWidget->update ();
+}
+
+void MainWindow::on_pushButton_13_clicked()
+{
+    //调整俯视图
+    viewer->setCameraPosition(0, 0, 40000,
+                              0, 0, 0,
+                              0, 1, 0);
+    ui->qvtkWidget->update ();
+}
+
+void MainWindow::on_pushButton_14_clicked()
+{
+    //调整侧视图
+    viewer->setCameraPosition(0, -40000, 0,
+                              0, 0, 0,
+                              0, 0, 1);
+    ui->qvtkWidget->update ();
 }
