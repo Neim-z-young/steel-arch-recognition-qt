@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/png">
+        <file>正视.png</file>
+        <file>俯视.png</file>
+        <file>侧视.png</file>
+    </qresource>
+</RCC>

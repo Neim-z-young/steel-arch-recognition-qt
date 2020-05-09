@@ -70,7 +70,8 @@ void MainWindow::on_pushButton_clicked()
         color_handler.reset(new ColorHandler(cloud, 0x44, 0x72, 0xc4));
         viewer->addPointCloud (cloud, *color_handler, "cloud");
         ui->qvtkWidget->update ();
-
+        //默认侧视图
+        on_pushButton_14_clicked();
     }
 }
 

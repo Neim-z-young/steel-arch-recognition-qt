@@ -46,6 +46,12 @@ find_package(VTK REQUIRED)
 include_directories(${VTK_INCLUDE_DIRS})
 link_directories(${VTK_LIBRARY_DIRS})
 
+#resources
+file(GLOB_RECURSE QRC_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc)
+set(QRC_SOURCE_FILES imag.qrc)
+qt5_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
+
+
 if(ANDROID)
   add_library(design SHARED
     main.cpp
@@ -69,6 +75,7 @@ else()
     ../../../clion/pclDemo/learning/pcdFile/pclDBSCAN.h
     ../../../clion/pclDemo/learning/pcdFile/rockfaceHelper.h
     ../../../clion/pclDemo/learning/pcdFile/steelArchHelper.h
+    ${QRC_FILES}
   )
 endif()
 
