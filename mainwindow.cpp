@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("钢拱识别系统");
+    ui->progressBar->hide();
 
     // Setup the cloud pointer
      cloud.reset (new PointCloudT);
@@ -483,15 +484,21 @@ void MainWindow::on_pushButton_10_clicked()
 
 void MainWindow::on_pushButton_8_clicked()
 {
-    //流水线处理
+    //前置处理
     std::ostringstream oss;
     oss<<"start pipeline...";
     qInfo(oss.str().c_str());
     oss.str("");
+    ui->progressBar->show();
+    ui->progressBar->setValue(10);
+    on_pushButton_3_clicked();  //数据预处理
+    ui->progressBar->setValue(30);
     on_pushButton_4_clicked();  //坐标轴标定
+    ui->progressBar->setValue(70);
     on_pushButton_5_clicked();  //移除地面
+    ui->progressBar->setValue(99);
     on_pushButton_6_clicked();  //提取岩石表面
-    on_pushButton_7_clicked();  //钢拱识别
+    ui->progressBar->hide();
     oss<<"end pipeline...";
     qInfo(oss.str().c_str());
     oss.str("");
@@ -501,10 +508,13 @@ void MainWindow::on_pushButton_11_clicked()
 {
     //保存钢拱数据点
     QString fileName = QFileDialog::getSaveFileName(this, tr("数据"), "", tr("point cloud data(*.pcd)"));
-    std::ostringstream oss;
-    oss<<"save steel arch point to "<<fileName.toStdString()<<" ; point size is: "<<steel_arch_cloud->size();
-    qInfo(oss.str().c_str());
-    pcl::io::savePCDFile(fileName.toStdString(), *steel_arch_cloud);
+    if(!fileName.isNull()){
+        std::ostringstream oss;
+        oss<<"save steel arch point to "<<fileName.toStdString()<<" ; point size is: "<<steel_arch_cloud->size();
+        qInfo(oss.str().c_str());
+        pcl::io::savePCDFile(fileName.toStdString(), *steel_arch_cloud);
+    }
+
 }
 
 void MainWindow::on_pushButton_12_clicked()
